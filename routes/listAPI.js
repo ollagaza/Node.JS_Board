@@ -21,38 +21,46 @@ router.get('/', function(req, res, next) {
     body = req.query; //get
 
     if(body.keyword) where += `AND subject like '%${body.keyword}%' `;
-    sql = "SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate, " +
-        "date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board ORDER BY idx DESC";
+    sql = "SELECT COUNT(*) cnt from board ORDER BY idx DESC";
     conn.query(sql, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
-        if (err) {
-            console.error("err : " + err);
-            res.send({success: true, list:''});
-        }else{
-            totalCount = 9; //rows[0].cnt;
+        if (err)  throw err;
 
-            total_page = Math.ceil(totalCount/ipp);
+        totalCount = rows[0].cnt;
 
-            if(body.page) page = body.page;
-            start = (page - 1) * 10;
-            start_page = Math.ceil(page / block);
-            end_page = start_page * block;
+        total_page = Math.ceil(totalCount/ipp);
 
-            if(total_page < end_page) end_page = total_page;
+        if(body.page) page = body.page;
+        start = (page - 1) * 10;
+        start_page = Math.ceil(page / block);
+        end_page = start_page * block;
 
-            let paging = {
-                "totalCount":totalCount
-                ,"total_page": total_page
-                ,"page":page
-                ,"start_page":start_page
-                ,"end_page":end_page
-                ,"ipp":ipp
-            }
-            //res.render('list.ejs', {title : '게시판 리스트',  rows:rows});
-            res.send({success: true, list:rows,paging:paging});
-            //res.status(200).json(
-            //    rows
-            //);
+        if(total_page < end_page) end_page = total_page;
+
+        let paging = {
+            "totalCount":totalCount
+            ,"total_page": total_page
+            ,"page":page
+            ,"start_page":start_page
+            ,"end_page":end_page
+            ,"ipp":ipp
         }
+
+        sql = "SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate, " +
+            "date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board ORDER BY idx DESC";
+        conn.query(sql, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
+            if (err) {
+                console.error("err : " + err);
+                res.send({success: true, list:''});
+            }else{
+
+                //res.render('list.ejs', {title : '게시판 리스트',  rows:rows});
+                res.send({success: true, list:rows,paging:paging});
+                //res.status(200).json(
+                //    rows
+                //);
+            }
+
+        });
 
     });
 });
