@@ -11,6 +11,7 @@ let formRouter = require('./routes/form');
 let boardRouter = require('./routes/board');
 let listAPIRouter = require('./routes/listAPI');
 let listAPIRouter2 = require('./routes/listAPI2');
+let viewAPIRouter = require('./routes/viewAPI');
 
 let app = express();
 let cors = require('cors');
@@ -31,8 +32,9 @@ app.use('/users', usersRouter);
 app.use('/form', formRouter);
 app.use('/list', boardRouter);
 app.use('/board', boardRouter);
-app.use('/listapi', listAPIRouter);
+app.use('/api/list', listAPIRouter);
 app.use('/listapi2', listAPIRouter2);
+app.use('/api/view', viewAPIRouter);
 
 //app.use('/board/list/:page', boardRouter);
 

@@ -19,21 +19,21 @@ router.get('/', function(req, res, next) {
     let where = "";
 
     body = req.query; //get
-    let board_code = body.board_code;
+    let job_code = body.job_code;
     let keyword = body.keyword;
 
-    let datas = [board_code, keyword]; // 변수설정한 값을 datas 에 배열화
-    if(keyword) where += `AND title like '%${keyword}%' `;
+    let datas = [job_code, keyword]; // 변수설정한 값을 datas 에 배열화
+    //if(keyword) where += `AND title like '%${keyword}%' `;
 
 
     //sql = `SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate,
     //    date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board WHERE board_code = ? ${where} ORDER BY idx DESC`;
-    sql = "CALL spBoardList(?,?)";
-    console.log(sql);
+    sql = "CALL spJobList(?,?)";
+    //console.log(sql);
     conn.query(sql, datas, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
         if (err) {
             console.error("err : " + err);
-            res.send({success: true, list:''});
+            res.send({success: false, list:''});
         }else{
             rows[1].forEach( (row) => { totalCount = row.totalCount });
 
