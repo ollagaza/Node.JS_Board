@@ -13,6 +13,7 @@ let listAPIRouter = require('./routes/listAPI');
 let listAPIRouter2 = require('./routes/listAPI2');
 let viewAPIRouter = require('./routes/viewAPI');
 let writeAPIRouter = require('./routes/writeAPI');
+let uploadAPIRouter = require('./routes/uploadAPI');
 
 let app = express();
 let cors = require('cors');
@@ -37,6 +38,7 @@ app.use('/api/list', listAPIRouter);
 app.use('/listapi2', listAPIRouter2);
 app.use('/api/view', viewAPIRouter);
 app.use('/api/write', writeAPIRouter);
+app.use('/api/upload', uploadAPIRouter);
 
 //app.use('/board/list/:page', boardRouter);
 

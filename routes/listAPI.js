@@ -22,13 +22,18 @@ router.get('/', function(req, res, next) {
     let job_code = body.job_code;
     let keyword = body.keyword;
 
-    let datas = [job_code, keyword]; // 변수설정한 값을 datas 에 배열화
+    if(body.page) page = body.page;
+    start = (page - 1) * 10;
+    start_page = Math.ceil(page / block);
+    end_page = start_page * block;
+
+    let datas = [job_code, keyword, start, end]; // 변수설정한 값을 datas 에 배열화
     //if(keyword) where += `AND title like '%${keyword}%' `;
 
 
     //sql = `SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate,
     //    date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board WHERE board_code = ? ${where} ORDER BY idx DESC`;
-    sql = "CALL spJobList(?,?)";
+    sql = "CALL spJobList(?,?,?,?)";
     //console.log(sql);
     conn.query(sql, datas, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
         if (err) {
@@ -40,11 +45,6 @@ router.get('/', function(req, res, next) {
             //totalCount = rows[1];
             console.log(totalCount);
             total_page = Math.ceil(totalCount/ipp);
-
-            if(body.page) page = body.page;
-            start = (page - 1) * 10;
-            start_page = Math.ceil(page / block);
-            end_page = start_page * block;
 
             if(total_page < end_page) end_page = total_page;
 
