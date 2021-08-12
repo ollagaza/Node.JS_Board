@@ -19,50 +19,54 @@ router.get('/', function(req, res, next) {
     let where = "";
 
     body = req.query; //get
+    let board_code = body.board_code;
+    let keyword = body.keyword;
 
-    if(body.keyword) where += `AND subject like '%${body.keyword}%' `;
-    sql = "SELECT COUNT(*) cnt from board ORDER BY idx DESC";
-    conn.query(sql, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
-        if (err)  throw err;
+    let datas = [board_code, keyword]; // 변수설정한 값을 datas 에 배열화
+    if(keyword) where += `AND title like '%${keyword}%' `;
 
-        totalCount = rows[0].cnt;
 
-        total_page = Math.ceil(totalCount/ipp);
+    //sql = `SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate,
+    //    date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board WHERE board_code = ? ${where} ORDER BY idx DESC`;
+    sql = "CALL spBoardList(?,?)";
+    console.log(sql);
+    conn.query(sql, datas, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
+        if (err) {
+            console.error("err : " + err);
+            res.send({success: true, list:''});
+        }else{
+            rows[1].forEach( (row) => { totalCount = row.totalCount });
 
-        if(body.page) page = body.page;
-        start = (page - 1) * 10;
-        start_page = Math.ceil(page / block);
-        end_page = start_page * block;
+            //totalCount = rows[1];
+            console.log(totalCount);
+            total_page = Math.ceil(totalCount/ipp);
 
-        if(total_page < end_page) end_page = total_page;
+            if(body.page) page = body.page;
+            start = (page - 1) * 10;
+            start_page = Math.ceil(page / block);
+            end_page = start_page * block;
 
-        let paging = {
-            "totalCount":totalCount
-            ,"total_page": total_page
-            ,"page":page
-            ,"start_page":start_page
-            ,"end_page":end_page
-            ,"ipp":ipp
-        }
+            if(total_page < end_page) end_page = total_page;
 
-        sql = "SELECT idx, name, title, date_format(modidate, '%Y-%m-%d %H:%i:%s') modidate, " +
-            "date_format(regdate,'%Y-%m-%d %H:%i:%s') regdate, hit from board ORDER BY idx DESC";
-        conn.query(sql, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
-            if (err) {
-                console.error("err : " + err);
-                res.send({success: true, list:''});
-            }else{
-
-                //res.render('list.ejs', {title : '게시판 리스트',  rows:rows});
-                res.send({success: true, list:rows,paging:paging});
-                //res.status(200).json(
-                //    rows
-                //);
+            let paging = {
+                "totalCount":totalCount
+                ,"total_page": total_page
+                ,"page":page
+                ,"start_page":start_page
+                ,"end_page":end_page
+                ,"ipp":ipp
             }
 
-        });
+            // 일반 쿼리 사용시 rows, 프로시져 사용시 rows[0]로 처리
+            //res.render('list.ejs', {title : '게시판 리스트',  rows:rows});
+            res.send({success: true, list:rows[0], paging:paging});
+            //res.status(200).json(
+            //    rows
+            //);
+        }
 
     });
+
 });
 
 module.exports = router;
