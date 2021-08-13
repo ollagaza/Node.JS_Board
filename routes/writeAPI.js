@@ -4,8 +4,24 @@ var mysql = require('mysql');  // db 폴더를 만들어서 conn 과 info 를 �
 var mysql_odbc = require('../db/db_conn')();
 var conn = mysql_odbc.init();
 
+const multer = require('multer');
+const path = require('path');
+const upload = multer({
+    storage: multer.diskStorage({
+        destination(req, file, done){
+            done(null, 'public/uploadFiles/');
+        },
+        filename(req, file, done) {
+            const ext = path.extname(file.originalname);
+            done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+            //done(null, file.originalname);
+        },
+    }),
+});
+
+
 /* GET home page. */
-router.post('/', function(req, res, next) {
+router.post('/', upload.array('image', 4), function(req, res, next) {
 
     body = req.body; //post
     let job_code = body.job_code;
@@ -14,10 +30,26 @@ router.post('/', function(req, res, next) {
     let worker = body.worker;
     let manager = body.manager;
 
-    let datas = [job_code, subject, content, worker, manager]; // 변수설정한 값을 datas 에 배열화
+    let filename = "";
+    for (let i = 0; i < req.files.length; i++) {
+        filename += `///public/uploadFiles/${req.files[i].filename}`;
+    }
 
-    sql = "CALL spJobWrite(?, ?, ?, ?, ?)";
-    conn.query(sql, datas, function(err, rows) {  // select 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
+    //let files = body.file.filename;
+    //const { filename, mimetype, size } = req.file;
+    //let filepath = req.file;
+   //console.log(filename);
+   // console.log(filepath);
+    //let file = req.file;
+
+    //let result = {
+    //    originalName : file.originalname,
+    //    size : file.size,
+    //};
+    let datas = [job_code, subject, content, worker, manager, filename]; // 변수설정한 값을 datas 에 배열화
+
+    sql = "CALL spJobWrite(?, ?, ?, ?, ?, ?)";
+    conn.query(sql, datas, function(err, rows) {  // write 쿼리문 날린 데이터를 rows 변수에 담는다 오류가 있으면 err
         if (err) {
             console.error("err : " + err);
             res.send({success: false, write:''});

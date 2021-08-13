@@ -6,7 +6,7 @@ let logger = require('morgan');
 // let WebSocket = require("ws"); //WebSocket 모듈
 
 let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
+let usersRouter = require('./routes/userAPI');
 let formRouter = require('./routes/form');
 let boardRouter = require('./routes/board');
 let listAPIRouter = require('./routes/listAPI');

@@ -16,7 +16,7 @@ const upload = multer({
     }),
 });
 
-router.post('/', upload.single('image'), (req, res) => {
+router.post('/', upload.array('image',10), (req, res) => {
     console.log(req.file, req.body);
     res.send('OK');
 });
